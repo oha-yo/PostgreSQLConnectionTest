@@ -26,31 +26,26 @@ public class PostgreSQLConnectionTest {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
             String formattedDateTime = now.format(formatter);
             System.out.println("---------------------------------------------------");
-            System.out.println("Recording start time: " + formattedDateTime);
+            System.out.println("Connection test start time : " + formattedDateTime);
 
             Properties props = loadProperties("database.properties");
 
             String url = props.getProperty("db.url");
             System.out.println("---------------------------------------------------");
-            System.out.println("url: " + url);
+            System.out.println("url   : " + url);
 
             Pattern pattern = Pattern.compile("jdbc:postgresql://([^:/]+)(?::(\\d+))?/.*");
             Matcher matcher = pattern.matcher(url);
             if (matcher.find()) {
                 String phost = matcher.group(1);
                 int defaultPort = 5432;
-                int pport;
-                if (matcher.group(2) != null) {
-                    pport = Integer.parseInt(matcher.group(2));
-                    if (pport <= 0 || pport > 65535) {
-                        throw new IllegalArgumentException("Port number out of range: " + pport);
-                    }
-                } else {
-                    pport = defaultPort;
+                int pport = matcher.group(2) != null ? Integer.parseInt(matcher.group(2)) : defaultPort;
+                if (pport <= 0 || pport > 65535) {
+                    throw new IllegalArgumentException("Port number out of range: " + pport);
                 }
 
-                System.out.println("Host: " + phost);
-                System.out.println("Port: " + pport);
+                System.out.println("Host  : " + phost);
+                System.out.println("Port  : " + pport);
 
                 if (!isHostReachable(phost)) {
                     throw new IOException("Host " + phost + " is not reachable.");
@@ -70,6 +65,7 @@ public class PostgreSQLConnectionTest {
             connection = DriverManager.getConnection(url, user, password);
 
             ResultSet resultSet = executeQuery(connection, query);
+            System.out.println("---------------------------------------------------");
             printResultSet(resultSet);
 
             System.out.println("---------------------------------------------------");
